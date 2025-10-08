@@ -1,94 +1,116 @@
 
-Import dearpygul,dearpyaul, as dpe
-def update number (sender, app_data, user_data) :
-print(user data)
-print("left operand" )
-1f dpg-get value("operator*) - **:
-pg-set_value("left _operand",pg-get _value ("left operand") + user _data)
-dag-set_value ("right_operand",dpg-get_value ("right_operand*") + user data)
-119
-11101
-1140
-defi
-delete number (sender, app.
-data,
-user data):
-If (dpg-get_value("right_operand*) - **) :
-dpg-set_ value("right_operand",
-•11f (dps-get_value("left_operand") - **):
-dpg-set_value("left_operand",
-18
-19
-def update operator (sender,
-app_data, user data):
-dpg-set _value""operator", user_datal
-def perforn_operation(sender, app_data):
-25
-調型
-36
-37
-dpg-create_context()
-dpg-create_vicuport()
-dpg-setup dearpygui ()
+import dearpygui.dearpygui as dpg
 
+def update_number(sender, app_data, user_data):
+    print(user_data)
+    print("left operand")
+    if dpg.get_value("operator") == "":
+        dpg.set_value("left_operand", dpg.get_value("left_operand") + user_data)
+    else:
+        dpg.set_value("right_operand", dpg.get_value("right_operand") + user_data)
 
-with dpg-texture_registry():
-width, height, channel, data, - dpg. load _image("delete_button-png")
-dpg-add _static_texture(width-width, height-height, default_valus-data, tag-"delete_button_texture*)
+def delete_number(sender, app_data, user_data):
+    if dpg.get_value("right_operand") != "":
+        dpg.set_value("right_operand", dpg.get_value("right_operand")[:-1])
+    elif dpg.get_value("operator") != "":
+        dpg.set_value("operator", "")
+    elif dpg.get_value("left_operand") != "":
+        dpg.set_value("left_operand", dpg.get_value("left_operand")[:-1])
 
+def update_operator(sender, app_data, user_data):
+    if dpg.get_value("left_operand") != "":
+        dpg.set_value("operator", user_data)
 
-with dpg-value_registry():
-dpg-add _string_value(default_valuc="", tag-"left_operand" )
-dpg-add_string_value(default_value-"*,
-tag-"right_operand")
-dpg-add_string_value(default_valuc-**, tag-"operator")
-with dpg-window(label-"Example Window")as main_window:
-with dps-group(horizontal-Truc) :
-dpg-add_ text(source-"left_operand" )
-dpg-add _text (source-"operator") dpg-add_text(source-"right_operand")
+def perform_operation(sender, app_data):
+    left = dpg.get_value("left_operand")
+    right = dpg.get_value("right_operand")
+    operator = dpg.get_value("operator")
+    
+    if left and right and operator:
+        try:
+            left_num = float(left)
+            right_num = float(right)
+            
+            if operator == "+":
+                result = left_num + right_num
+            elif operator == "-":
+                result = left_num - right_num
+            elif operator == "×":
+                result = left_num * right_num
+            elif operator == "÷":
+                result = left_num / right_num if right_num != 0 else "Error"
+            
+            # Clear all values and show result
+            dpg.set_value("left_operand", str(result))
+            dpg.set_value("right_operand", "")
+            dpg.set_value("operator", "")
+        except:
+            dpg.set_value("left_operand", "Error")
+            dpg.set_value("right_operand", "")
+            dpg.set_value("operator", "")
 
+def clear_all(sender, app_data, user_data):
+    dpg.set_value("left_operand", "")
+    dpg.set_value("right_operand", "")
+    dpg.set_value("operator", "")
 
-with dpg-group(horizontal-Truc):
-dpg-add_button(label-"7", callback-update_number, user_data-"7",
-width-108, height-100)
-dpg-add_button(label-"g", callback-update_number, user_data-"8", width-188, height-100) dpg-add_button(label-"9", callback-update_number, user_data-"9",
-width-100, height-100)
-dpg-add image_button(texture_tag-"delete_button_texture", callback-delete_number, tag-"delete", user_data-"delete_number", width-58, height-50) dpg-add_button(label-"/", callback-update_operator, user_data-"/*, width-180, height-100)
+dpg.create_context()
+dpg.create_viewport()
+dpg.setup_dearpygui()
 
+with dpg.value_registry():
+    dpg.add_string_value(default_value="", tag="left_operand")
+    dpg.add_string_value(default_value="", tag="right_operand")
+    dpg.add_string_value(default_value="", tag="operator")
 
-with dpg-group(horizonta)-True): dpg-add_button(label-"*"
-callback-update_number,user_data-"4",
-dpg-add_ button(label-"5,
-callback-update_number,user_data-"5",
-width-100, height-100) width-100, height-100)
-dpg-add_button(label-"6",
-callback-update_number, user _data-*6", width-100, height-100)
-dpg-add_ button(label-"x", callback-update_operator,user _data-"x", width-100, height-100)
+with dpg.window(label="Calculator", width=420, height=600) as main_window:
+    # Display area
+    with dpg.group(horizontal=True):
+        dpg.add_text(source="left_operand")
+        dpg.add_text(source="operator")
+        dpg.add_text(source="right_operand")
+    
+    dpg.add_separator()
+    
+    # First row: 7, 8, 9, Delete, ÷
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="7", callback=update_number, user_data="7", width=80, height=80)
+        dpg.add_button(label="8", callback=update_number, user_data="8", width=80, height=80)
+        dpg.add_button(label="9", callback=update_number, user_data="9", width=80, height=80)
+        dpg.add_button(label="⌫", callback=delete_number, width=80, height=80)
+        dpg.add_button(label="÷", callback=update_operator, user_data="÷", width=80, height=80)
+    
+    # Second row: 4, 5, 6, ×
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="4", callback=update_number, user_data="4", width=80, height=80)
+        dpg.add_button(label="5", callback=update_number, user_data="5", width=80, height=80)
+        dpg.add_button(label="6", callback=update_number, user_data="6", width=80, height=80)
+        dpg.add_button(label="×", callback=update_operator, user_data="×", width=80, height=80)
+    
+    # Third row: 1, 2, 3, +
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="1", callback=update_number, user_data="1", width=80, height=80)
+        dpg.add_button(label="2", callback=update_number, user_data="2", width=80, height=80)
+        dpg.add_button(label="3", callback=update_number, user_data="3", width=80, height=80)
+        dpg.add_button(label="+", callback=update_operator, user_data="+", width=80, height=80)
+    
+    # Fourth row: 0, ., C, -
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="0", callback=update_number, user_data="0", width=80, height=80)
+        dpg.add_button(label=".", callback=update_number, user_data=".", width=80, height=80)
+        dpg.add_button(label="C", callback=clear_all, width=80, height=80)
+        dpg.add_button(label="-", callback=update_operator, user_data="-", width=80, height=80)
+    
+    # Fifth row: Equals button
+    with dpg.group(horizontal=True):
+        dpg.add_button(label="=", callback=perform_operation, width=340, height=80)
 
+with dpg.theme() as global_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 5, category=dpg.mvThemeCat_Core)
 
-dps-group(horizontal-True):
-dE-add_button(label-"3", callback-update_number, user_data dpg-add_button(label-"2",
-callback-update_number, user_data»
-dpg-add_buttan(label-"3",
-callback-update number, user _data
-dpg-add_ button(label-"*"
-callback-update_operator, user_
-dpg-add_button(label-"-"
-callback-update_operator,user.
-wddth-180, height-100)
-Midth-100, height-100) wddth-100, height-100)
-width-100, height-100) width-100, height-100)
-with dps-group(horizontal-True):
-dpg-add_button(label-"e", callback-update_number, user_data-dpg-add_button(label-"-",
-callback-update_operator, user_data
-dpg-add_button(label-"**, callback-update_ operator, user.
-,width-100, height-100)
-width-180, height-188) wddth-100, height-200)
-
-
-with dipe thene() as global theme:
-with dp-thems component (4pg-mvButton):
-epp-add there_style(dpg-myStyleVar Franckounding,50, category-dpg-avTheneCat_Care)
-ars-bind iten thene(nain vindon, Blobal thene) spe-shoe viesport()
-dpe-start dearpygul
-Ape-destroy _context)
+dpg.bind_item_theme(main_window, global_theme)
+dpg.set_primary_window(main_window, True)
+dpg.show_viewport()
+dpg.start_dearpygui()
+dpg.destroy_context()
