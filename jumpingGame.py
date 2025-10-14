@@ -70,6 +70,25 @@ class Person:
         
         # TEACHING POINT: "We create a rectangle to represent Rob for collision detection"
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        
+        # TEACHING POINT: "Load the zombie image for Rob"
+        self.image = None
+        self.load_image()
+    
+    def load_image(self):
+        """
+        STEP 1H: Explain to student: "This method loads the zombie image for Rob.
+        If the image can't be loaded, we'll use the rectangle fallback."
+        """
+        try:
+            # TEACHING POINT: "Load the zombie image and scale it to Rob's size"
+            self.image = pygame.image.load("assets/zombie.png")
+            self.image = pygame.transform.scale(self.image, (self.width, self.height))
+            print("Successfully loaded zombie.png image for Rob")
+        except pygame.error as e:
+            # TEACHING POINT: "If image loading fails, we'll use the rectangle"
+            print(f"Could not load zombie.png: {e}")
+            self.image = None
     
     def move_left(self):
         """
@@ -122,10 +141,15 @@ class Person:
     def draw(self, screen):
         """
         STEP 1G: Explain to student: "This method draws Rob on the screen.
-        We use pygame.draw.rect to draw a blue rectangle for Rob."
+        We can draw him as a rectangle or use an image texture."
         """
-        # TEACHING POINT: "We draw Rob as a blue rectangle"
-        pygame.draw.rect(screen, BLUE, (self.x, self.y, self.width, self.height))
+        # TEACHING POINT: "We can draw Rob as a blue rectangle or use an image"
+        if hasattr(self, 'image') and self.image:
+            # TEACHING POINT: "If we have an image, draw it instead of a rectangle"
+            screen.blit(self.image, (self.x, self.y))
+        else:
+            # TEACHING POINT: "Fallback to blue rectangle if no image"
+            pygame.draw.rect(screen, BLUE, (self.x, self.y, self.width, self.height))
 
 # =============================================================================
 # STEP 2: CREATE THE OBSTACLE CLASS

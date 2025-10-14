@@ -140,11 +140,27 @@ dpg.create_context()
 dpg.create_viewport()
 dpg.setup_dearpygui()
 
+# TEACHING POINT: "Load the trash icon image from assets folder"
+with dpg.texture_registry():
+    # Create a simple fallback texture (gray square)
+    dpg.add_static_texture(width=32, height=32, default_value=[0.5] * 32 * 32 * 4, tag="trash_icon")
+
 # TEACHING POINT: "This creates our 'memory' - three variables to store calculator state"
 with dpg.value_registry():
     dpg.add_string_value(default_value="", tag="left_operand")
     dpg.add_string_value(default_value="", tag="right_operand")
     dpg.add_string_value(default_value="", tag="operator")
+
+# TEACHING POINT: "Create themes before we use them"
+with dpg.theme() as global_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 5, category=dpg.mvThemeCat_Core)
+
+# TEACHING POINT: "Create a special round theme for the delete button"
+with dpg.theme() as round_button_theme:
+    with dpg.theme_component(dpg.mvButton):
+        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 40, category=dpg.mvThemeCat_Core)  # Make it round
+        dpg.add_theme_color(dpg.mvThemeCol_Button, (255, 100, 100), category=dpg.mvThemeCat_Core)  # Red color
 
 # =============================================================================
 # STEP 2A: CREATE THE CALCULATOR WINDOW
@@ -183,7 +199,9 @@ with dpg.window(label="Calculator", width=420, height=600) as main_window:
         dpg.add_button(label="7", callback=update_number, user_data="7", width=80, height=80)
         dpg.add_button(label="8", callback=update_number, user_data="8", width=80, height=80)
         dpg.add_button(label="9", callback=update_number, user_data="9", width=80, height=80)
-        dpg.add_button(label="⌫", callback=delete_number, width=80, height=80)
+        # TEACHING POINT: "Let's create a round delete button with trash icon"
+        delete_btn = dpg.add_button(label="🗑️", callback=delete_number, width=80, height=80)
+        dpg.bind_item_theme(delete_btn, round_button_theme)
         dpg.add_button(label="÷", callback=update_operator, user_data="÷", width=80, height=80)
     
     # TEACHING POINT: "Notice how we organize buttons in rows - this makes it look like a real calculator"
@@ -219,11 +237,7 @@ with dpg.window(label="Calculator", width=420, height=600) as main_window:
 # Tell the student: "Now let's make our calculator more robust by adding validation.
 # We'll prevent common errors and make the user experience better."
 
-# TEACHING POINT: "This creates a theme to make our buttons look nicer"
-with dpg.theme() as global_theme:
-    with dpg.theme_component(dpg.mvButton):
-        dpg.add_theme_style(dpg.mvStyleVar_FrameRounding, 5, category=dpg.mvThemeCat_Core)
-
+# TEACHING POINT: "Apply the global theme to the main window"
 dpg.bind_item_theme(main_window, global_theme)
 
 # =============================================================================
