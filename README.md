@@ -5,6 +5,7 @@ A collection of Python games and applications built with popular Python librarie
 ## 📁 Project Contents
 
 - **`calculator.py`** - A GUI calculator application built with DearPyGui
+- **`wordle.py`** - Classic Wordle word guessing game with colored feedback
 - **`jump_example_02.py`** - A jumping ball game built with Pygame
 - **`tictactoe.py`** - Classic Tic-Tac-Toe game
 - **`wordrescue.py`** - Word rescue game
@@ -197,7 +198,16 @@ After setting up your virtual environment:
    - Press = to calculate
    - Use C to clear, ⌫ to delete
 
-2. **Test the Jumping Game:**
+2. **Test the Wordle Game:**
+   ```bash
+   python wordle.py
+   ```
+   - Guess the 5-letter word in 6 tries
+   - Green = correct letter in correct position
+   - Yellow = correct letter in wrong position
+   - Gray = letter not in the word
+
+3. **Test the Jumping Game:**
    ```bash
    python jump_example_02.py
    ```
@@ -219,6 +229,7 @@ The project uses these Python packages:
 # Activate your virtual environment first, then:
 pip install dearpygui  # For calculator app
 pip install pygame     # For games
+# Note: wordle.py uses only built-in Python libraries (no extra installation needed)
 ```
 
 ---
@@ -266,6 +277,19 @@ If you encounter issues:
 - Supports decimal numbers
 - Clear button (C) resets everything
 - Backspace button (⌫) deletes last character
+
+### Wordle Game
+- **Objective**: Guess the secret 5-letter word in 6 attempts
+- **Input**: Type your 5-letter word guess and press Enter
+- **Feedback Colors**:
+  - 🟩 **Green**: Correct letter in the correct position
+  - 🟨 **Yellow**: Correct letter but in the wrong position  
+  - ⬜ **Gray**: Letter is not in the word at all
+- **Features**: 
+  - Input validation (only 5-letter words accepted)
+  - Duplicate letter handling
+  - Game statistics tracking
+  - Play again option
 
 ### Jumping Ball Game
 - **SPACE**: Make the ball jump
