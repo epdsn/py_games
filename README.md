@@ -27,7 +27,7 @@ Make sure you have Python 3.8 or higher installed on your system.
 
 ## 🪟 Windows Setup
 
-### Option 1: Using Command Prompt or PowerShell
+### Method 1: Using Command Prompt (Recommended for beginners)
 
 ```cmd
 # 1. Navigate to the project directory
@@ -37,10 +37,7 @@ cd path\to\py_games
 python -m venv venv
 
 # 3. Activate virtual environment
-# For Command Prompt:
 venv\Scripts\activate
-# For PowerShell:
-.\venv\Scripts\Activate.ps1
 
 # 4. Install dependencies
 pip install dearpygui pygame
@@ -50,15 +47,39 @@ python calculator.py
 python jump_example_02.py
 ```
 
-### Option 2: If you get PowerShell execution policy errors
+### Method 2: Using PowerShell (Multiple options)
 
+**Option A: Use batch file (Works with any execution policy)**
 ```powershell
-# Use the batch file instead:
-.\venv\Scripts\activate
+# 1. Navigate to project directory
+cd path\to\py_games
 
-# Or temporarily allow script execution:
+# 2. Create virtual environment
+python -m venv venv
+
+# 3. Activate using batch file (avoids execution policy issues)
+venv\Scripts\activate.bat
+
+# 4. Install dependencies
+pip install dearpygui pygame
+
+# 5. Run games
+python calculator.py
+```
+
+**Option B: Enable PowerShell scripts (One-time setup)**
+```powershell
+# Allow scripts for current user (run once):
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Then you can use the PowerShell script:
 .\venv\Scripts\Activate.ps1
+```
+
+**Option C: Bypass execution policy temporarily**
+```powershell
+# Bypass policy for one session:
+PowerShell -ExecutionPolicy Bypass -File "venv\Scripts\Activate.ps1"
 ```
 
 ### Deactivating the environment:
@@ -212,7 +233,10 @@ pip install pygame     # For games
 - On macOS/Linux, try `python3` instead of `python`
 
 **Virtual environment activation fails:**
-- On Windows PowerShell, try using the .bat file: `.\venv\Scripts\activate`
+- **Windows PowerShell "execution policy" error:**
+  - Use batch file: `venv\Scripts\activate.bat` (easiest solution)
+  - Or enable scripts: `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser`
+  - Or use Command Prompt instead of PowerShell
 - Make sure you're in the correct directory
 - Check that the virtual environment was created successfully
 
