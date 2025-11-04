@@ -21,7 +21,7 @@ TEACHING PROGRESSION:
 Each section has specific instructions for what to tell the student.
 """
 
-import dearpygui.dearpygui as dpg
+import dearpygui.dearpygui as dpg 
 
 # =============================================================================
 # STEP 1: UNDERSTAND THE BASIC STRUCTURE
