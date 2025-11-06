@@ -23,6 +23,7 @@ Follow the numbered steps to guide the student through development.
 
 import pygame
 import sys
+import traceback
 
 # Initialize Pygame
 pygame.init()
@@ -82,12 +83,12 @@ class Person:
         """
         try:
             # TEACHING POINT: "Load the zombie image and scale it to Rob's size"
-            self.image = pygame.image.load("assets/zombie.png")
+            self.image = pygame.image.load("assets/pixel_hero.jpg")
             self.image = pygame.transform.scale(self.image, (self.width, self.height))
-            print("Successfully loaded zombie.png image for Rob")
+            print("Successfully loaded pixel_hero.jpg image for Rob")
         except pygame.error as e:
             # TEACHING POINT: "If image loading fails, we'll use the rectangle"
-            print(f"Could not load zombie.png: {e}")
+            print(f"Could not load pixel_hero.jpg: {e}")
             self.image = None
     
     def move_left(self):
@@ -180,6 +181,85 @@ class Obstacle:
         pygame.draw.rect(screen, RED, (self.x, self.y, self.width, self.height))
 
 # =============================================================================
+# STEP 2.5: CREATE THE ENEMY CLASS
+# =============================================================================
+# Tell the student: "Now let's create an enemy that moves back and forth and chases Rob!"
+
+class Enemy:
+    """
+    STEP 2.5A: Explain to student: "This class represents a moving enemy.
+    The enemy will patrol back and forth and be dangerous to touch."
+    """
+    
+    def __init__(self, x, y, patrol_start, patrol_end):
+        """
+        STEP 2.5B: Explain to student: "The enemy needs position and patrol boundaries.
+        It will move back and forth between patrol_start and patrol_end."
+        """
+        self.x = x
+        self.y = y
+        self.width = 25
+        self.height = 25
+        self.speed = 2
+        self.patrol_start = patrol_start  # Left boundary of patrol
+        self.patrol_end = patrol_end      # Right boundary of patrol
+        self.direction = 1  # 1 = moving right, -1 = moving left
+        self.rect = pygame.Rect(x, y, self.width, self.height)
+        
+        # Try to load enemy image
+        self.image = None
+        self.load_image()
+    
+    def load_image(self):
+        """
+        STEP 2.5C: Explain to student: "Try to load an enemy image, fallback to circle."
+        """
+        try:
+            # You can add an enemy image file here
+            self.image = pygame.image.load("assets/pixel_enemy.jpg")
+            self.image = pygame.transform.scale(self.image, (self.width, self.height))
+            print("Successfully loaded pixel_enemy.jpg image")
+        except pygame.error:
+            print("Could not load pixel_enemy.jpg, using circle shape")
+            self.image = None
+    
+    def update(self):
+        """
+        STEP 2.5D: Explain to student: "This makes the enemy patrol back and forth.
+        When it hits a boundary, it changes direction."
+        """
+        # Move the enemy
+        self.x += self.speed * self.direction
+        
+        # Check patrol boundaries and reverse direction if needed
+        if self.x <= self.patrol_start:
+            self.x = self.patrol_start
+            self.direction = 1  # Start moving right
+        elif self.x >= self.patrol_end - self.width:
+            self.x = self.patrol_end - self.width
+            self.direction = -1  # Start moving left
+        
+        # Update collision rectangle
+        self.rect.x = self.x
+    
+    def draw(self, screen):
+        """
+        STEP 2.5E: Explain to student: "Draw the enemy as a red circle with eyes."
+        """
+        if hasattr(self, 'image') and self.image:
+            screen.blit(self.image, (self.x, self.y))
+        else:
+            # Draw as a red circle for visibility
+            center_x = self.x + self.width // 2
+            center_y = self.y + self.height // 2
+            pygame.draw.circle(screen, RED, (center_x, center_y), self.width // 2)
+            # Add eyes to make it look more like an enemy
+            pygame.draw.circle(screen, WHITE, (center_x - 5, center_y - 3), 3)
+            pygame.draw.circle(screen, WHITE, (center_x + 5, center_y - 3), 3)
+            pygame.draw.circle(screen, BLACK, (center_x - 5, center_y - 3), 1)
+            pygame.draw.circle(screen, BLACK, (center_x + 5, center_y - 3), 1)
+
+# =============================================================================
 # STEP 3: SET UP THE GAME
 # =============================================================================
 # Tell the student: "Now let's set up the main game. This includes creating the screen,
@@ -192,12 +272,24 @@ def main():
     """
     # TEACHING POINT: "Create the game window"
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-    pygame.display.set_caption("Rob's Jumping Game")
+    pygame.display.set_caption("Rob's Jumping Game - Now with Enemies!")
     clock = pygame.time.Clock()
     
     # TEACHING POINT: "Create our game objects"
     rob = Person(50, SCREEN_HEIGHT - 80)  # Create Rob near the bottom left
     obstacle = Obstacle(SCREEN_WIDTH // 2 - 25, SCREEN_HEIGHT - 100, 50, 50)  # Obstacle in middle
+    
+    # TEACHING POINT: "Create enemies that patrol different areas"
+    enemies = [
+        Enemy(100, SCREEN_HEIGHT - 50, 80, 200),      # Ground patrol enemy
+        Enemy(250, SCREEN_HEIGHT - 130, 200, 350),    # Obstacle area patrol
+        Enemy(350, SCREEN_HEIGHT - 50, 300, 450),     # Right side patrol
+    ]
+    
+    # Game state variables
+    game_over = False
+    font = pygame.font.Font(None, 74)
+    small_font = pygame.font.Font(None, 36)
     
     # =============================================================================
     # STEP 4: MAIN GAME LOOP
@@ -213,30 +305,83 @@ def main():
                 running = False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    rob.jump()  # Jump when space is pressed
+                    if not game_over:
+                        rob.jump()  # Jump when space is pressed
+                    else:
+                        # Reset game
+                        rob.x = 50
+                        rob.y = SCREEN_HEIGHT - 80
+                        rob.velocity_y = 0
+                        rob.on_ground = False
+                        game_over = False
+                elif event.key == pygame.K_r and game_over:
+                    # Reset game with R key
+                    rob.x = 50
+                    rob.y = SCREEN_HEIGHT - 80
+                    rob.velocity_y = 0
+                    rob.on_ground = False
+                    game_over = False
         
-        # TEACHING POINT: "Check for continuous key presses (left/right movement)"
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            rob.move_left()
-        if keys[pygame.K_RIGHT]:
-            rob.move_right()
-        
-        # TEACHING POINT: "Update Rob's position (handle gravity and jumping)"
-        rob.update()
-        
-        # TEACHING POINT: "Check collision between Rob and the obstacle"
-        if rob.rect.colliderect(obstacle.rect):
-            # TEACHING POINT: "If Rob is above the obstacle, he can land on it"
-            if rob.velocity_y > 0 and rob.y < obstacle.y:
-                rob.y = obstacle.y - rob.height
-                rob.velocity_y = 0
-                rob.on_ground = True
+        if not game_over:
+            # TEACHING POINT: "Check for continuous key presses (left/right movement)"
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                rob.move_left()
+            if keys[pygame.K_RIGHT]:
+                rob.move_right()
+            
+            # TEACHING POINT: "Update Rob's position (handle gravity and jumping)"
+            rob.update()
+            
+            # TEACHING POINT: "Update all enemies"
+            for enemy in enemies:
+                enemy.update()
+            
+            # TEACHING POINT: "Check collision between Rob and the obstacle"
+            if rob.rect.colliderect(obstacle.rect):
+                # TEACHING POINT: "If Rob is above the obstacle, he can land on it"
+                if rob.velocity_y > 0 and rob.y < obstacle.y:
+                    rob.y = obstacle.y - rob.height
+                    rob.velocity_y = 0
+                    rob.on_ground = True
+            
+            # TEACHING POINT: "Check collision between Rob and enemies"
+            for enemy in enemies:
+                if rob.rect.colliderect(enemy.rect):
+                    game_over = True
+                    print("Game Over! Rob touched an enemy!")
         
         # TEACHING POINT: "Clear the screen and draw everything"
         screen.fill(WHITE)  # Fill with white background
-        rob.draw(screen)  # Draw Rob
+        
+        if not game_over:
+            rob.draw(screen)  # Draw Rob
+        else:
+            # Draw Rob in a different color when game over
+            pygame.draw.rect(screen, (100, 100, 100), (rob.x, rob.y, rob.width, rob.height))
+        
         obstacle.draw(screen)  # Draw the obstacle
+        
+        # Draw all enemies
+        for enemy in enemies:
+            enemy.draw(screen)
+        
+        # Draw game over screen
+        if game_over:
+            game_over_text = font.render("GAME OVER!", True, RED)
+            restart_text = small_font.render("Press SPACE or R to restart", True, BLACK)
+            
+            # Center the text
+            game_over_rect = game_over_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 50))
+            restart_rect = restart_text.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 + 20))
+            
+            screen.blit(game_over_text, game_over_rect)
+            screen.blit(restart_text, restart_rect)
+        
+        # Draw instructions
+        if not game_over:
+            instructions = small_font.render("Arrows: Move, Space: Jump, Avoid red enemies!", True, BLACK)
+            screen.blit(instructions, (10, 10))
         
         # TEACHING POINT: "Update the display and control frame rate"
         pygame.display.flip()
@@ -253,7 +398,15 @@ def main():
 # check makes sure the game only runs when we run this file directly."
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception:
+        # Print traceback to console so we can see why the game quits
+        traceback.print_exc()
+        try:
+            input("An error occurred. Press Enter to exit...")
+        except Exception:
+            pass
 
 # =============================================================================
 # TEACHING GUIDE: NEXT STEPS FOR STUDENT DEVELOPMENT
